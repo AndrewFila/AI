@@ -9,9 +9,9 @@ diagram: """
      /      |       \
     /       |        \
  min1      min2      min3
-  /|\      /|\       /|\ 
+  /|\      /|\       /|\
  / | \    / | \     / | \
-A  B  C  D  E  F   G  H  I  
+A  B  C  D  E  F   G  H  I
 3 12  8  5  4  6  14  1  11
 """
 

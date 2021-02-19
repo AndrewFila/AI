@@ -135,6 +135,44 @@ class MinimaxAgent(MultiAgentSearchAgent):
     Your minimax agent (question 2)
     """
 
+    def maximum(self, gameState, actions, agentIndex, depth):
+        tempMax = ("max", -float("inf"))          
+        for action in actions:
+            
+            tempSuc = (action, self.minmax(depth+1, gameState.generateSuccessor(agentIndex, action), (depth+1)))#%gameState.getNumAgents()))
+            #print(tempSuc[1])
+            if tempMax[1] <= tempSuc[1]:
+                tempMax = tempSuc
+        return tempMax        
+
+
+
+    def minimum(self, gameState, actions, agentIndex, depth):
+        tempMin = ("min" ,float("inf"))
+        for action in actions:
+            tempSuc = (action, self.minmax(depth+1, gameState.generateSuccessor(agentIndex, action), (depth+1)%gameState.getNumAgents()))
+            
+            if tempMin[1] >= tempSuc[1]:
+                tempMin = tempSuc
+            #print(tempSuc[1])
+        return tempMin
+
+
+
+    def minmax(self, depth, gameState, agentIndex):
+        if gameState.isLose() or gameState.isWin() or (depth >= self.depth * gameState.getNumAgents()):
+            return self.evaluationFunction(gameState)
+        if agentIndex == 0:
+            return self.maximum(gameState, gameState.getLegalActions(agentIndex), agentIndex, depth)[1]
+        else:
+            return self.minimum(gameState, gameState.getLegalActions(agentIndex), agentIndex, depth)[1]
+        
+
+
+
+
+
+
     def getAction(self, gameState):
         """
         Returns the minimax action from the current gameState using self.depth
@@ -159,7 +197,13 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #util.raiseNotDefined()
+        #return self.minmax(0, gameState, 0)[0]
+        return self.maximum(gameState, gameState.getLegalActions(0), 0, 0)[0]
+    
+
+
+        
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
