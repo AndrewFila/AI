@@ -136,11 +136,14 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
 
     def maximum(self, gameState, actions, agentIndex, depth):
-        tempMax = ("max", -float("inf"))          
+        tempMax = ("max", -float("inf"))   
+        agentIndex = agentIndex + 1       
+        depth = depth + 1
         for action in actions:
+            if agentIndex >= gameState.getNumAgents():
+                agentIndex = 0
+            tempSuc = (action, self.minmax(depth, gameState.generateSuccessor(agentIndex, action), agentIndex))
             
-            tempSuc = (action, self.minmax(depth+1, gameState.generateSuccessor(agentIndex, action), (depth+1)))#%gameState.getNumAgents()))
-            #print(tempSuc[1])
             if tempMax[1] <= tempSuc[1]:
                 tempMax = tempSuc
         return tempMax        
@@ -149,8 +152,12 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
     def minimum(self, gameState, actions, agentIndex, depth):
         tempMin = ("min" ,float("inf"))
+        agentIndex = agentIndex + 1
+        depth = depth + 1
         for action in actions:
-            tempSuc = (action, self.minmax(depth+1, gameState.generateSuccessor(agentIndex, action), (depth+1)%gameState.getNumAgents()))
+            if agentIndex >= gameState.getNumAgents():
+                agentIndex = 0 
+            tempSuc = (action, self.minmax(depth, gameState.generateSuccessor(agentIndex, action), agentIndex))
             
             if tempMin[1] >= tempSuc[1]:
                 tempMin = tempSuc
@@ -163,8 +170,10 @@ class MinimaxAgent(MultiAgentSearchAgent):
         if gameState.isLose() or gameState.isWin() or (depth >= self.depth * gameState.getNumAgents()):
             return self.evaluationFunction(gameState)
         if agentIndex == 0:
+            print("Max -- depth: {}, agent index: {}".format(depth, agentIndex));
             return self.maximum(gameState, gameState.getLegalActions(agentIndex), agentIndex, depth)[1]
         else:
+            print("min -- depth: {}, agent index: {}".format(depth, agentIndex));
             return self.minimum(gameState, gameState.getLegalActions(agentIndex), agentIndex, depth)[1]
         
 
