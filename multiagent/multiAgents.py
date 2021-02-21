@@ -75,30 +75,23 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
         newGhost = successorGameState.getGhostPositions()
         
-        
-        
-        #ghostList = newGhost.asList()
+
+        #we check for each ghost which one is the closest    
         for ghost in newGhost:
             closestGhost = util.manhattanDistance(newPos,ghost)
-            if closestGhost < 3:
+            if closestGhost < 3:            #if the ghost is close that is bad so return a large negative number
                 return -float("inf")
-            
-
-
-
-        #print("ghosts: {}".format(newGhost))
         
         
-        #closestFood = util.manhattanDistance(newPos, newFood)
-        foodList = newFood.asList()
-        minimum = float("inf")
-        for food in foodList:
+        foodList = newFood.asList() #get the food as a list
+        minimum = float("inf")      #temp variable to be overwritten by the closest food value
+        #for each food find the closest one
+        for food in foodList:       
             minimum = min(util.manhattanDistance(newPos, food), minimum)
-            #print(closestfood)
 
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore() + (1.0/minimum)
+        return successorGameState.getScore() + (1.0/minimum) #return the score plus the reciprical of the minimum
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -137,44 +130,48 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
     def maximum(self, gameState, actions, agentIndex, depth):
         tempMax = ("max", -float("inf"))   
-        agentIndex = agentIndex + 1       
-        depth = depth + 1
-        for action in actions:
-            if agentIndex >= gameState.getNumAgents():
-                agentIndex = 0
-            tempSuc = (action, self.minmax(depth, gameState.generateSuccessor(agentIndex, action), agentIndex))
-            
+        agentIndex = agentIndex + 1
+        #check to see if we are out of hte bounds of our agent indexes
+        if agentIndex >= gameState.getNumAgents():
+            agentIndex = 0
+        #print("agent #{} -- actions {}".format(agentIndex, actions))
+
+        #for each action find the greatest value
+        for action in actions:    
+            tempSuc = (action, self.minmax(depth + 1, gameState.generateSuccessor(agentIndex, action), agentIndex)) #minmax gets cost from successor recursivly
             if tempMax[1] <= tempSuc[1]:
                 tempMax = tempSuc
-        return tempMax        
+        return tempMax  #return the maximum cost action as a tuple (action, cost)
 
 
 
     def minimum(self, gameState, actions, agentIndex, depth):
-        tempMin = ("min" ,float("inf"))
+        tempMin = ("min" ,float("inf")) 
         agentIndex = agentIndex + 1
-        depth = depth + 1
+        #check to see if we are out of the bounds of our agents
+        if agentIndex >= gameState.getNumAgents():
+            agentIndex = 0 
+        #print("agent #{} -- actions {}".format(agentIndex, actions))
+        #check for each action what has the lowest cost then we will return that value
         for action in actions:
-            if agentIndex >= gameState.getNumAgents():
-                agentIndex = 0 
-            tempSuc = (action, self.minmax(depth, gameState.generateSuccessor(agentIndex, action), agentIndex))
-            
+            tempSuc = (action, self.minmax(depth + 1, gameState.generateSuccessor(agentIndex, action), agentIndex))
             if tempMin[1] >= tempSuc[1]:
                 tempMin = tempSuc
             #print(tempSuc[1])
-        return tempMin
+        return tempMin      #Return lowest cost action as a tuple (action, cost)
 
 
 
     def minmax(self, depth, gameState, agentIndex):
-        if gameState.isLose() or gameState.isWin() or (depth >= self.depth * gameState.getNumAgents()):
+        if gameState.isLose() or gameState.isWin() or (depth >= self.depth * gameState.getNumAgents()): #check first if we have won or lost or 
             return self.evaluationFunction(gameState)
-        if agentIndex == 0:
-            print("Max -- depth: {}, agent index: {}".format(depth, agentIndex));
-            return self.maximum(gameState, gameState.getLegalActions(agentIndex), agentIndex, depth)[1]
-        else:
-            print("min -- depth: {}, agent index: {}".format(depth, agentIndex));
-            return self.minimum(gameState, gameState.getLegalActions(agentIndex), agentIndex, depth)[1]
+        if agentIndex == 0:                                                                             #check if we are minmaxing for pacman 
+            #print("Max -- depth: {}, agent index: {}".format(depth, agentIndex));
+            return self.maximum(gameState, gameState.getLegalActions(0), 0, depth)[1]                   #Pacman has an agent value of 0 ########################!!!
+                                                                                                        
+        else:                                                                                           #or for one of the ghosts
+            #print("min -- depth: {}, agent index: {}".format(depth, agentIndex));
+            return self.minimum(gameState, gameState.getLegalActions(agentIndex), agentIndex, depth)[1]#
         
 
 
@@ -208,7 +205,8 @@ class MinimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         #util.raiseNotDefined()
         #return self.minmax(0, gameState, 0)[0]
-        return self.maximum(gameState, gameState.getLegalActions(0), 0, 0)[0]
+        return self.maximum(gameState, gameState.getLegalActions(0), 0, 0)[0]       # The first agent is pacman so, we pass the maximum function as a return
+                                                                                    # then the maximum function will call minmax.
     
 
 
@@ -218,18 +216,136 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     """
     Your minimax agent with alpha-beta pruning (question 3)
     """
+    
+    def maximum(self, gameState, actions, agentIndex, depth, alpha, beta):
+        tempMax = ("max", -float("inf"))   
+        agentIndex = agentIndex + 1
+        #check to see if we are out of hte bounds of our agent indexes
+        if agentIndex >= gameState.getNumAgents():
+            agentIndex = 0
+        #print("agent #{} -- actions {}".format(agentIndex, actions))
+
+        #for each action find the greatest value
+        for action in actions:    
+            tempSuc = (action, self.alphaBeta(depth + 1, gameState.generateSuccessor(agentIndex, action), agentIndex, alpha, beta)) #minmax gets cost from successor recursivly
+            if tempMax[1] <= tempSuc[1]:
+                tempMax = tempSuc
+
+        if tempMax[1] > beta:
+            return tempMax
+        alpha = max(alpha, tempMax[1])
+        return tempMax  #return the maximum cost action as a tuple (action, cost)
+
+
+
+    def minimum(self, gameState, actions, agentIndex, depth, alpha, beta):
+        tempMin = ("min" ,float("inf")) 
+        agentIndex = agentIndex + 1
+        #check to see if we are out of the bounds of our agents
+        if agentIndex >= gameState.getNumAgents():
+            agentIndex = 0 
+        #print("agent #{} -- actions {}".format(agentIndex, actions))
+        #check for each action what has the lowest cost then we will return that value
+        for action in actions:
+            tempSuc = (action, self.alphaBeta(depth + 1, gameState.generateSuccessor(agentIndex, action), agentIndex, alpha, beta))
+            if tempMin[1] >= tempSuc[1]:
+                tempMin = tempSuc
+            #print(tempSuc[1])
+
+        if tempMin[1] < alpha:
+            return tempMin
+        beta = min(beta, tempMin[1])
+        return tempMin      #Return lowest cost action as a tuple (action, cost)
+
+
+
+
+
+    def alphaBeta(self, depth, gameState, agentIndex, alpha, beta):
+        if gameState.isLose() or gameState.isWin() or (depth >= self.depth * gameState.getNumAgents()): #check first if we have won or lost or 
+            return self.evaluationFunction(gameState)
+        if agentIndex == 0:                                                                             #check if we are minmaxing for pacman 
+            #print("Max -- depth: {}, agent index: {}".format(depth, agentIndex));
+            return self.maximum(gameState, gameState.getLegalActions(0), 0, depth, alpha, beta)[1]                   #Pacman has an agent value of 0 ########################!!!                                                   
+        else:                                                                                           #or for one of the ghosts
+            #print("min -- depth: {}, agent index: {}".format(depth, agentIndex));
+            return self.minimum(gameState, gameState.getLegalActions(agentIndex), agentIndex, depth, alpha, beta)[1]#
+        
+
+
+
 
     def getAction(self, gameState):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.maximum(gameState, gameState.getLegalActions(0), 0, 0, -float("inf"), float("inf"))[0]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
       Your expectimax agent (question 4)
     """
+
+    def maximum(self, gameState, actions, agentIndex, depth):
+        tempMax = -float("inf")   
+        agentIndex = agentIndex + 1
+        #check to see if we are out of hte bounds of our agent indexes
+        if agentIndex >= gameState.getNumAgents():
+            agentIndex = 0
+        #print("agent #{} -- actions {}".format(agentIndex, actions))
+
+        #for each action find the greatest value
+        for action in actions:    
+            tempSuc = self.expectimax(depth + 1, gameState.generateSuccessor(agentIndex, action), agentIndex, action) #minmax gets cost from successor recursivly
+            if tempMax <= tempSuc[1]:
+                tempMax = tempSuc
+        return tempMax  #return the maximum cost action as a tuple (action, cost)
+
+    def average(self, gameState, actions, agentIndex, depth):
+        avg = 0
+        children = 0
+
+        agentIndex = agentIndex + 1
+
+        if agentIndex >= gameState.getNumAgents():
+            agentIndex = 0
+
+        for action in actions:
+            avg = self.expectimax(depth + 1, gameState, agentIndex, action)
+            children = children + 1
+        avg = avg[1] / children
+        return avg
+    
+    def expectimax(self, depth, gameState, agentIndex, action):
+        if gameState.isWin() or gameState.isLose() or (depth >= self.depth * gameState.getNumAgents()):
+            return (action, self.evaluationFunction(gameState))
+        if agentIndex == 0:
+            return self.maximum(gameState, gameState.getLegalActions(0), 0, depth)
+        else: 
+            return self.average(gameState, gameState.getLegalActions(agentIndex), agentIndex, depth)
 
     def getAction(self, gameState):
         """
@@ -239,7 +355,8 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.expectimax(0, gameState, 0, gameState.getLegalActions(0))
+        #return self.maximum(gameState, gameState.getLegalActions(0), 0, 0)[0]
 
 def betterEvaluationFunction(currentGameState):
     """
