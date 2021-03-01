@@ -1,0 +1,20 @@
+c Suppose that liars always speak what is false, and truth-tellers always speak what is true.
+c Further suppose that Amy, Bob, and Cal are each either a liar or truth-teller.
+c   Amy says, “Bob is a liar.”
+c   Bob says, “Cal is a liar.”
+c   Cal says, “Amy and Bob are liars.”
+c Which, if any, of these people are truth-tellers?
+c
+c Let 1 be Amy is a truth-teller.
+c Let 2 be Bob is a truth-teller.
+c Let 3 be Cal is a truth-teller.
+c
+p cnf 3 8
+-1 -2  0
+ 2  1  0
+-2 -3  0
+ 3  2  0
+-3 -1  0
+-3 -2  0
+ 1  2  3  0
+ 3  0

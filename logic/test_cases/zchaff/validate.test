@@ -1,0 +1,6 @@
+class: "CNFTest"
+
+description: "verify that ZChaff can be located and executed (using a simple liars/truth-tellers problem)"
+test: "[[-1, -2], [2, 1], [-2, -3], [3, 2], [-3, -1], [-3, -2], [1, 2, 3]]"
+entailment: "-3"
+entails: "True"
