@@ -18,25 +18,26 @@ Let 6 be CHESHIRE CAT ate the salt
 def rule_caterpillar():
     "Return the CNF form of CATERPILLAR's statement"
     "*** YOUR CODE HERE ***"
-    return []
+    
+    return [[1,-5]]
 
 def rule_bill():
     "Return the CNF form of BILL THE LIZARD's statement"
     "*** YOUR CODE HERE ***"
-    return []
+    return [[2,-5]]
 
 def rule_cheshire():
     "Return the CNF form of CHESHIRE CAT's statement"
     "*** YOUR CODE HERE ***"
-    return []
+    return [[3,6]]
 
 def rule_truth():
     "Return the CNF form of 'at least one of them lied and at least one told the truth'"
     "*** YOUR CODE HERE ***"
-    return []
+    return [[1,2,3],[-1,-2,-3],[2,-3],[-1,2],[1,2,-3],[1,-2,-3],[-1,2,-3],[1,-2,3],[-1,2,3],[-1,-2,3]]
 
 def rule_salt():
     "Return the CNF form of 'the salt has been eaten'"
     "HINT: one (and only one) culprit ate the salt"
     "*** YOUR CODE HERE ***"
-    return []
+    return [[4,5,6],[-4,-5,-6],[-4,-5],[-4,-6],[-5,-6]]
