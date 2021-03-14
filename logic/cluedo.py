@@ -183,7 +183,46 @@ def axiom_casefile_unique():
 def suggest(suggester, card1, card2, card3, refuter, cardShown):
     "Construct the CNF clauses representing facts and/or clauses learned from a suggestion"
     "*** YOUR CODE HERE ***"
-    return []
+    
+    
+    #[[[-47, -53, -57, -68, -74, -78], [-89, -95, -99]]]
+
+    temp   = []
+    temp2  = []
+    array  = []
+    array2 = []
+    if cardShown != None and refuter != None:
+        temp.append(Cluedo.getIdentifierFromNames(refuter, cardShown))
+        array.append(temp)
+    elif cardShown == None and refuter != None:
+        for i in range(Cluedo.hands.index(suggester) + 1, Cluedo.hands.index(refuter)):
+            temp.append(-1*Cluedo.getIdentifierFromIndicies(i,Cluedo.cards.index(card1)))
+            array.append(temp)
+            temp = []
+            temp.append(-1*Cluedo.getIdentifierFromIndicies(i,Cluedo.cards.index(card2)))
+            array.append(temp)
+            temp = []
+            temp.append(-1*Cluedo.getIdentifierFromIndicies(i,Cluedo.cards.index(card3)))
+            array.append(temp)
+            temp = []        
+        #array.append(temp)
+        temp2.append(1*Cluedo.getIdentifierFromIndicies(Cluedo.cards.index(refuter),Cluedo.cards.index(card1)))
+        temp2.append(1*Cluedo.getIdentifierFromIndicies(Cluedo.cards.index(refuter),Cluedo.cards.index(card2)))
+        temp2.append(1*Cluedo.getIdentifierFromIndicies(Cluedo.cards.index(refuter),Cluedo.cards.index(card3)))
+        array.append(temp2)
+    else:
+        for suspect in Cluedo.suspects:
+            if suspect != suggester:
+                temp.append(-1*Cluedo.getIdentifierFromNames(suspect,card1))
+                array.append(temp)
+                temp = []
+                temp.append(-1*Cluedo.getIdentifierFromNames(suspect,card2))
+                array.append(temp)
+                temp = []
+                temp.append(-1*Cluedo.getIdentifierFromNames(suspect,card3))
+                array.append(temp)
+                temp = []
+    return array
 
 def accuse(accuser, card1, card2, card3, correct):
     "Construct the CNF clauses representing facts and/or clauses learned from an accusation"
