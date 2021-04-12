@@ -65,26 +65,22 @@ class ValueIterationAgent(ValueEstimationAgent):
         Question 1: runValueIteration method 
         """
         "*** YOUR CODE HERE ***"
-        qval  = 0
+        
+        qval  = 0.0
+        
         for i in range(self.iterations):
-            updatedVal = self.values
+            updatedVal = util.Counter()
             for st in self.mdp.getStates():
                 qval2 = -float("inf")
                 for action in self.mdp.getPossibleActions(st):
-                    qval = self.computeQValueFromValues(st,action)
+                    qval = self.computeQValueFromValues(st,action)      #
+                    #print("Iteration: %d state: ( %d, %d ) \n\taction: %s\n\tqval: %5.3f" % (i, st[0], st[1], action, qval))
                     if qval > qval2:
-                        qval2 = qval
-                    #print(st)
-                    #print("qval1: ")
-                    #print(qval)
-                    #print("qval2: ")
-                    #print(qval2)
-                    #print(" ")
-
-                    #self.computeActionFromValues(st)
+                        qval2 = qval                                                    
                 if qval2 == -float("inf"):
                     qval2 = 0
                 updatedVal[st] = qval2
+
             self.values = updatedVal
 
 
@@ -102,15 +98,17 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
-        T = self.mdp.getTransitionStatesAndProbs(state, action)
         #print(T)
         #print(self.values[T[0][0]])
         #V_k+1(s) = max (sum T(s,a,s`) [R(s,a,s`) + dV(s`)])
 
-        total = 0
-        for stateAndProbs in T: 
-            R = self.mdp.getReward(state, action, stateAndProbs[0])
-            total += stateAndProbs[1] * (R + (self.discount * self.getValue(stateAndProbs[0])))
+        total = 0.0
+        #discount = 1
+        for ste, Probs in self.mdp.getTransitionStatesAndProbs(state, action):
+            #print(ste)
+            #print("\treward: %5.3f, probs: %5.3f, value: %5.2f" % (self.mdp.getReward(state, action, ste), Probs, self.getValue(ste))) 
+            total += Probs * (self.mdp.getReward(state, action, ste) + (self.discount * self.getValue(ste)))
+            #discount = discount * self.discount
         return total        
         
     def computeActionFromValues(self, state):
@@ -184,6 +182,28 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
         """
         Question 4
         """
+        qval  = 0.0
+        
+        for i in range(self.iterations):
+            st = self.mdp.getStates()
+            size = len(st) -  1
+            print(size)
+            updatedVal = util.Counter()
+            
+            #for st in self.mdp.getStates():
+            if self.mdp.isTerminal(st[i]):
+                continue
+            qval2 = -float("inf")
+            for action in self.mdp.getPossibleActions(st[i]):
+                qval = self.computeQValueFromValues(st[i],action)      
+                #print("Iteration: %d state: ( %d, %d ) \n\taction: %s\n\tqval: %5.3f" % (i, st[0], st[1], action, qval))
+                if qval > qval2:
+                    qval2 = qval                                                    
+            if qval2 == -float("inf"):
+                qval2 = 0
+            updatedVal[st[i]] = qval2
+
+            self.values = updatedVal
         "*** YOUR CODE HERE ***"
 
 
