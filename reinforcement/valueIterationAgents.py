@@ -65,8 +65,27 @@ class ValueIterationAgent(ValueEstimationAgent):
         Question 1: runValueIteration method 
         """
         "*** YOUR CODE HERE ***"
-        for st in self.mdp.getStates():
-            self.computeActionFromValues(st)
+        qval  = 0
+        for i in range(self.iterations):
+            updatedVal = self.values
+            for st in self.mdp.getStates():
+                qval2 = -float("inf")
+                for action in self.mdp.getPossibleActions(st):
+                    qval = self.computeQValueFromValues(st,action)
+                    if qval > qval2:
+                        qval2 = qval
+                    #print(st)
+                    #print("qval1: ")
+                    #print(qval)
+                    #print("qval2: ")
+                    #print(qval2)
+                    #print(" ")
+
+                    #self.computeActionFromValues(st)
+                if qval2 == -float("inf"):
+                    qval2 = 0
+                updatedVal[st] = qval2
+            self.values = updatedVal
 
 
     def getValue(self, state):
@@ -79,18 +98,20 @@ class ValueIterationAgent(ValueEstimationAgent):
     def computeQValueFromValues(self, state, action):
         """
         Question 1 
-            [(term_State, 1.0)]
           Compute the Q-value of action in state from the
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
         T = self.mdp.getTransitionStatesAndProbs(state, action)
-        R = self.mdp.getReward(state, action, T[0][0])
         #print(T)
-        #print(R)
         #print(self.values[T[0][0]])
-        return T[0][1] * (R + self.discount * self.values[T[0][0]])
-        
+        #V_k+1(s) = max (sum T(s,a,s`) [R(s,a,s`) + dV(s`)])
+
+        total = 0
+        for stateAndProbs in T: 
+            R = self.mdp.getReward(state, action, stateAndProbs[0])
+            total += stateAndProbs[1] * (R + (self.discount * self.getValue(stateAndProbs[0])))
+        return total        
         
     def computeActionFromValues(self, state):
         """
