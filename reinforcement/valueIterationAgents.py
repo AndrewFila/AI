@@ -73,8 +73,7 @@ class ValueIterationAgent(ValueEstimationAgent):
             for st in self.mdp.getStates():
                 qval2 = -float("inf")
                 for action in self.mdp.getPossibleActions(st):
-                    qval = self.computeQValueFromValues(st,action)      #
-                    #print("Iteration: %d state: ( %d, %d ) \n\taction: %s\n\tqval: %5.3f" % (i, st[0], st[1], action, qval))
+                    qval = self.computeQValueFromValues(st,action)
                     if qval > qval2:
                         qval2 = qval                                                    
                 if qval2 == -float("inf"):
@@ -98,17 +97,9 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
-        #print(T)
-        #print(self.values[T[0][0]])
-        #V_k+1(s) = max (sum T(s,a,s`) [R(s,a,s`) + dV(s`)])
-
         total = 0.0
-        #discount = 1
         for ste, Probs in self.mdp.getTransitionStatesAndProbs(state, action):
-            #print(ste)
-            #print("\treward: %5.3f, probs: %5.3f, value: %5.2f" % (self.mdp.getReward(state, action, ste), Probs, self.getValue(ste))) 
             total += Probs * (self.mdp.getReward(state, action, ste) + (self.discount * self.getValue(ste)))
-            #discount = discount * self.discount
         return total        
         
     def computeActionFromValues(self, state):
@@ -123,11 +114,7 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
-        #print(self.getAction(state))
-        #print(self.mdp.getStates())
-        #print(self.mdp.getPossibleActions(state))
-        #print(self.mdp.isTerminal(state))
-        #print(self.values)
+
         if self.mdp.isTerminal(state):
             return None;
         maxValAct = (-float('inf'), None)
@@ -137,9 +124,6 @@ class ValueIterationAgent(ValueEstimationAgent):
                 maxValAct = (qval, action)
         return maxValAct[1]
 
-        
-
-        #util.raiseNotDefined()
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
@@ -182,30 +166,25 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
         """
         Question 4
         """
-        qval  = 0.0
-        
-        for i in range(self.iterations):
-            st = self.mdp.getStates()
-            size = len(st) -  1
-            print(size)
-            updatedVal = util.Counter()
-            
-            #for st in self.mdp.getStates():
-            if self.mdp.isTerminal(st[i]):
-                continue
-            qval2 = -float("inf")
-            for action in self.mdp.getPossibleActions(st[i]):
-                qval = self.computeQValueFromValues(st[i],action)      
-                #print("Iteration: %d state: ( %d, %d ) \n\taction: %s\n\tqval: %5.3f" % (i, st[0], st[1], action, qval))
-                if qval > qval2:
-                    qval2 = qval                                                    
-            if qval2 == -float("inf"):
-                qval2 = 0
-            updatedVal[st[i]] = qval2
-
-            self.values = updatedVal
         "*** YOUR CODE HERE ***"
 
+        states = self.mdp.getStates()
+        size = len(states)
+        updatedVal = util.Counter()
+        for i in range(self.iterations):
+            j = i%size;
+            if self.mdp.isTerminal(states[j]):
+                continue
+            qval2 = -float("inf")
+            for action in self.mdp.getPossibleActions(states[j]):
+                qval = self.computeQValueFromValues(states[j], action)
+                if qval > qval2:
+                    qval2 = qval
+            if qval2 == -float("inf"):
+                qval2 = 0
+            updatedVal[states[j]] = qval2
+            self.values = updatedVal
+            
 
 
 class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
