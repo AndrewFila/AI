@@ -394,7 +394,7 @@ def check_perceptron(tracker):
                 new_weights[0,0], new_weights[0,1]))
             print("Expected weights after training: [{:.4f}, {:.4f}]".format(
                 expected_weights[0,0], expected_weights[0,1]))
-            print()
+            print()  
             assert False, "Weight update sanity check failed"
 
     print("Sanity checking complete. Now training perceptron")

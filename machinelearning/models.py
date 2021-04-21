@@ -76,12 +76,12 @@ class RegressionModel(object):
     def __init__(self):
         # Initialize your model parameters here
         "*** YOUR CODE HERE ***"
-        self.weight1 = nn.Parameter(1,10)     #weight
-        self.weight2 = nn.Parameter(10,1)     #weight
-        self.bias1 = nn.Parameter(1,10)       #bias
-        self.bias2 = nn.Parameter(1,1)       #bias
-        self.learning_rate = .5
-        self.batch_size = 1
+        self.weight1 = nn.Parameter(1,50)     #weight
+        self.weight2 = nn.Parameter(50,1)     #weight
+        self.bias1 = nn.Parameter(1,50)       #bias
+        self.bias2 = nn.Parameter(1,1)         #bias
+        self.learning_rate = .09
+        self.batch_size = 200
 
     def run(self, x):
         """
@@ -92,9 +92,14 @@ class RegressionModel(object):
         Returns:
             A node with shape (batch_size x 1) containing predicted y-values
         """
+
+        #f(x) = relu(x * W_1 + b_1) * W_2 + b_2
+
+
         "*** YOUR CODE HERE ***"
         features1 = nn.Linear(x, self.weight1)
-        b1 = nn.ReLU(nn.AddBias(features1, self.bias1))
+        n = nn.AddBias(features1, self.bias1)
+        b1 = nn.ReLU(n)
         features2 = nn.Linear(b1, self.weight2)
         b2 = nn.AddBias(features2, self.bias2)
         return b2
@@ -110,6 +115,7 @@ class RegressionModel(object):
         Returns: a loss node
         """
         "*** YOUR CODE HERE ***"
+        
         return nn.SquareLoss(self.run(x),y)
 
     def train(self, dataset):
@@ -118,15 +124,16 @@ class RegressionModel(object):
         """
         "*** YOUR CODE HERE ***"
         batch_size = self.batch_size
+        inv_learning = -1 * self.learning_rate
         changed = False
         while True:
             changed = False
             for x, y in dataset.iterate_once(batch_size):
                 grad = nn.gradients(self.get_loss(x,y), [self.weight1, self.weight2, self.bias1, self.bias2])
-                self.weight1.update(grad, self.learning_rate)
-                self.weight2.update(grad, self.learning_rate)
-                self.bias1.update(grad, self.learning_rate)
-                self.bias2.update(grad, self.learning_rate)
+                self.weight1.update(grad[0], inv_learning)
+                self.weight2.update(grad[1], inv_learning)
+                self.bias1.update(grad[2],   inv_learning)
+                self.bias2.update(grad[3],   inv_learning)
             if nn.as_scalar(self.get_loss(x,y)) < 0.02:
                 break
 
@@ -147,6 +154,12 @@ class DigitClassificationModel(object):
     def __init__(self):
         # Initialize your model parameters here
         "*** YOUR CODE HERE ***"
+        self.weight1 = nn.Parameter(784,300)     #weight
+        self.weight2 = nn.Parameter(300,10)     #weight
+        self.bias1 = nn.Parameter(1,300)       #bias
+        self.bias2 = nn.Parameter(1,10)         #bias
+        self.learning_rate = .1
+        self.batch_size = 6
 
     def run(self, x):
         """
@@ -163,6 +176,13 @@ class DigitClassificationModel(object):
                 (also called logits)
         """
         "*** YOUR CODE HERE ***"
+        features1 = nn.Linear(x, self.weight1)
+        n = nn.AddBias(features1, self.bias1)
+        b1 = nn.ReLU(n)
+        features2 = nn.Linear(b1, self.weight2)
+        b2 = nn.AddBias(features2, self.bias2)
+        return b2
+
 
     def get_loss(self, x, y):
         """
@@ -178,12 +198,28 @@ class DigitClassificationModel(object):
         Returns: a loss node
         """
         "*** YOUR CODE HERE ***"
+        return nn.SquareLoss(self.run(x),y)
+
 
     def train(self, dataset):
         """
         Trains the model.
         """
         "*** YOUR CODE HERE ***"
+        batch_size = self.batch_size
+        inv_learning = -1 * self.learning_rate
+        changed = False
+        while True:
+            changed = False
+            for x, y in dataset.iterate_once(batch_size):
+                grad = nn.gradients(self.get_loss(x,y), [self.weight1, self.weight2, self.bias1, self.bias2])
+                self.weight1.update(grad[0], inv_learning)
+                self.weight2.update(grad[1], inv_learning)
+                self.bias1.update(grad[2],   inv_learning)
+                self.bias2.update(grad[3],   inv_learning)
+            print(dataset.get_validation_accuracy())
+            if dataset.get_validation_accuracy() >= 0.98:
+                break
 
 class LanguageIDModel(object):
     """
