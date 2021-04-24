@@ -239,13 +239,14 @@ class LanguageIDModel(object):
 
         # Initialize your model parameters here
         "*** YOUR CODE HERE ***"
-        self.h = 300
-        self.w        = nn.Parameter(47,self.h)     #weight
-        self.w2       = nn.Parameter(self.h, 5)
-        self.w_hidden = nn.Parameter(self.h, self.h)     #weight
-        self.learning_rate = .005
-        self.batch_size = 2
-
+        self.h              = 200
+        self.learning_rate  = .005
+        self.batch_size     = 2
+        
+        self.w              = nn.Parameter(self.num_chars,self.h)     #weight
+        self.w2             = nn.Parameter(self.h, 5)
+        self.w_hidden       = nn.Parameter(self.h, self.h)            #weight
+        
 
     def run(self, xs):
         """
@@ -284,7 +285,9 @@ class LanguageIDModel(object):
             else:
                 features1 = nn.Linear(x, self.w)
                 features2 = nn.Linear(z, self.w_hidden)
+
                 z = nn.Add(features1,features2)
+
         return nn.Linear(z,self.w2)
 
 
@@ -313,14 +316,12 @@ class LanguageIDModel(object):
         "*** YOUR CODE HERE ***"
         batch_size = self.batch_size
         inv_learning = -1 * self.learning_rate
-        changed = False
         while True:
-            changed = False
             for x, y in dataset.iterate_once(batch_size):
                 grad = nn.gradients(self.get_loss(x,y), [self.w, self.w2, self.w_hidden])
                 self.w.update(grad[0], inv_learning)
                 self.w2.update(grad[1], inv_learning)
                 self.w_hidden.update(grad[2], inv_learning)
             print(dataset.get_validation_accuracy())
-            if dataset.get_validation_accuracy() >= 0.81:
+            if dataset.get_validation_accuracy() >= 0.85:
                 break
