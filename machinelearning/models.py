@@ -240,8 +240,8 @@ class LanguageIDModel(object):
         # Initialize your model parameters here
         "*** YOUR CODE HERE ***"
         self.h              = 200
-        self.learning_rate  = .005
-        self.batch_size     = 2
+        self.learning_rate  = .008
+        self.batch_size     = 10
         
         self.w              = nn.Parameter(self.num_chars,self.h)     #weight
         self.w2             = nn.Parameter(self.h, 5)
